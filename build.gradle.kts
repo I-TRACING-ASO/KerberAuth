@@ -1,6 +1,8 @@
 plugins {
     id("java")
 }
+group = "kerberauth"
+version = "1.0"
 
 repositories {
     mavenCentral()
@@ -17,6 +19,12 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.jar {
+    manifest {
+        attributes(
+            "Implementation-Title" to "KerberAuth",
+            "Implementation-Version" to project.version.toString()
+        )
+    }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(configurations.runtimeClasspath.get().filter { it.isDirectory })
     from(configurations.runtimeClasspath.get().filterNot { it.isDirectory }.map { zipTree(it) })

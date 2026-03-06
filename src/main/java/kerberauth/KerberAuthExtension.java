@@ -16,7 +16,7 @@ import kerberauth.config.Config;
 public class KerberAuthExtension implements BurpExtension {
 
     public static final String EXTENSION_NAME = "KerberAuth";
-    public static final String EXTENSION_VERSION = "1.0";
+    public static final String EXTENSION_VERSION = resolveVersion();
     public static MontoyaApi api;
     
     private static String origUseSubjectCredsOnly;
@@ -79,5 +79,10 @@ public class KerberAuthExtension implements BurpExtension {
      */
     public static Frame suiteFrame() {
         return api.userInterface().swingUtils().suiteFrame();
+    }
+
+    private static String resolveVersion() {
+        String version = KerberAuthExtension.class.getPackage().getImplementationVersion();
+        return (version != null && !version.isBlank()) ? version : "dev";
     }
 }
