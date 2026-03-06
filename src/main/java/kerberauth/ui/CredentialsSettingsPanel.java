@@ -7,6 +7,7 @@ import kerberauth.kerberos.KerberosManager;
 import kerberauth.manager.UserManager;
 import kerberauth.model.UserEntry;
 import kerberauth.util.LogUtil;
+import kerberauth.util.UIUtil;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -34,7 +35,8 @@ public class CredentialsSettingsPanel extends JPanel {
     private boolean loading = false;
 
     public CredentialsSettingsPanel() {
-        super(new BorderLayout(4, 4));
+        super(new BorderLayout(5, 5));
+        setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
 
         tableModel = new UserTableModel();
         userTable = new JTable(tableModel);
@@ -46,6 +48,7 @@ public class CredentialsSettingsPanel extends JPanel {
                 userTable.getRowHeight() * 6));
 
         JScrollPane scrollPane = new JScrollPane(userTable);
+        UIUtil.installWheelPassthrough(scrollPane);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         addButton = new JButton("Add User");
@@ -61,7 +64,7 @@ public class CredentialsSettingsPanel extends JPanel {
 
         customHeaderField = new JTextField(15);
 
-        JPanel headerRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        JPanel headerRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         headerRow.add(new JLabel("Header name:"));
         headerRow.add(customHeaderField);
 
@@ -106,41 +109,63 @@ public class CredentialsSettingsPanel extends JPanel {
 
         JComponent[] inputs = inputsList.toArray(new JComponent[0]);
 
-        int result = JOptionPane.showConfirmDialog(KerberAuthExtension.suiteFrame(), inputs, "Add User", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result != JOptionPane.OK_OPTION) {
-            return;
-        }
+        while (true) {
+            int result = JOptionPane.showConfirmDialog(
+                KerberAuthExtension.suiteFrame(),
+                inputs,
+                "Add User",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
 
-        String username = newUsernameTextField.getText().trim();
-        if (username.isEmpty()) {
-            JOptionPane.showMessageDialog(KerberAuthExtension.suiteFrame(), "Username cannot be empty.", "Input Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+            if (result != JOptionPane.OK_OPTION) {
+                return;
+            }
 
-        if (username.contains("\\") || username.contains("/") || username.contains("@")) {
-            JOptionPane.showMessageDialog(KerberAuthExtension.suiteFrame(), 
-                "Username shouldn't contain slash, backslash or '@' - just a plain username is required",
-                "Warning", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+            String username = newUsernameTextField.getText().trim();
+            if (username.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                    KerberAuthExtension.suiteFrame(),
+                    "Username cannot be empty.",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+                continue;
+            }
 
-        String password = new String(newPasswordField.getPassword());
-        String headerSelector = headerSelectorField.getText().trim();
+            if (username.contains("\\") || username.contains("/") || username.contains("@")) {
+                JOptionPane.showMessageDialog(
+                    KerberAuthExtension.suiteFrame(),
+                    "Username shouldn't contain slash, backslash or '@' - just a plain username is required",
+                    "Warning",
+                    JOptionPane.WARNING_MESSAGE);
+                continue;
+            }
 
-        if (!headerSelector.isEmpty()) {
-            for (UserEntry existing : tableModel.getUsers()) {
-                if (headerSelector.equals(existing.getHeaderSelectorValue())) {
-                    JOptionPane.showMessageDialog(KerberAuthExtension.suiteFrame(),
-                        "Header selector '" + headerSelector + "' is already used by user '" + existing.getUsername() + "'.",
-                        "Duplicate Header Selector", JOptionPane.ERROR_MESSAGE);
-                    return;
+            String password = new String(newPasswordField.getPassword());
+            String headerSelector = headerSelectorField.getText().trim();
+
+            if (!headerSelector.isEmpty()) {
+                boolean duplicateHeader = false;
+                for (UserEntry existing : tableModel.getUsers()) {
+                    if (headerSelector.equals(existing.getHeaderSelectorValue())) {
+                        JOptionPane.showMessageDialog(
+                            KerberAuthExtension.suiteFrame(),
+                            "Header selector '" + headerSelector + "' is already used by user '" + existing.getUsername() + "'.",
+                            "Duplicate Header Selector",
+                            JOptionPane.ERROR_MESSAGE);
+                        duplicateHeader = true;
+                        break;
+                    }
+                }
+                if (duplicateHeader) {
+                    continue;
                 }
             }
-        }
 
-        UserEntry newUser = new UserEntry(username, password, headerSelector);
-        tableModel.addUser(newUser);
-        syncToUserManager();
+            UserEntry newUser = new UserEntry(username, password, headerSelector);
+            tableModel.addUser(newUser);
+            syncToUserManager();
+            return;
+        }
     }
 
     private void removeSelectedUser() {
@@ -167,6 +192,8 @@ public class CredentialsSettingsPanel extends JPanel {
             JOptionPane.showMessageDialog(KerberAuthExtension.suiteFrame(),
                     "Authentication failed for " + ue.getPrincipal() + ":\n" + ex.getMessage(),
                     "Failure", JOptionPane.ERROR_MESSAGE);
+            ue.setEnabled(false);
+            tableModel.fireTableRowsUpdated(row, row);
             LogUtil.logException(Config.LogLevel.VERBOSE, ex);
         }
     }

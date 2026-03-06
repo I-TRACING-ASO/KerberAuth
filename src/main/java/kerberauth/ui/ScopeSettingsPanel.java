@@ -3,6 +3,7 @@ package kerberauth.ui;
 import kerberauth.KerberAuthExtension;
 import kerberauth.config.Config;
 import kerberauth.util.DomainUtil;
+import kerberauth.util.UIUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -82,6 +83,7 @@ public class ScopeSettingsPanel extends JPanel {
         scopeListBox = new JList<>(scopeListModel);
         scopeListBox.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane scopePane = new JScrollPane(scopeListBox);
+        UIUtil.installWheelPassthrough(scopePane);
 
         gbc.gridx = 1;
         gbc.gridy = 1;

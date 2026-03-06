@@ -9,9 +9,12 @@ import burp.api.montoya.http.handler.HttpRequestToBeSent;
 import burp.api.montoya.http.handler.HttpResponseReceived;
 import burp.api.montoya.http.handler.RequestToBeSentAction;
 import burp.api.montoya.http.handler.ResponseReceivedAction;
+import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
 import kerberauth.authenticator.KerberosAuthenticator;
 import kerberauth.config.Config;
+import kerberauth.config.Config.AuthenticationStrategy;
 import kerberauth.util.DomainUtil;
 import kerberauth.util.LogUtil;
 import kerberauth.util.RequestUtil;
@@ -55,20 +58,38 @@ public class KerberosHttpHandler implements HttpHandler {
             return ResponseReceivedAction.continueWith(responseReceived);
         }
 
+        AuthenticationStrategy strategy = config.getAuthenticationStrategy();
         String host = responseReceived.initiatingRequest().httpService().host();
 
         // Always remember hosts that returned 401 Negotiate (useful for PROACTIVE_401)
-        hostname401Set.add(host);
+        boolean newHost = hostname401Set.add(host);
 
-        // REACTIVE: authenticate and re-send immediately
-        if (config.getAuthenticationStrategy() == Config.AuthenticationStrategy.REACTIVE) {
+        if (strategy == Config.AuthenticationStrategy.REACTIVE ||  // REACTIVE: authenticate and re-send immediately
+            (strategy == Config.AuthenticationStrategy.PROACTIVE_401 && newHost) // PROACTIVE_401: first time we see 401 from this host, authenticate and re-send immediately
+            ) {
             HttpRequest originalRequest = responseReceived.initiatingRequest();
+
+            // Avoid loops: if a request already had Authorization and still got 401, do not retry again.
+            if (originalRequest.hasHeader("Authorization")) {
+                LogUtil.log(Config.LogLevel.VERBOSE,
+                    String.format("%s: request to %s already had Authorization and still got 401, not retrying", strategy, host));
+                return ResponseReceivedAction.continueWith(responseReceived);
+            }
+
             HttpRequest authenticatedRequest = authenticator.authenticateRequest(originalRequest);
 
             if (authenticatedRequest != originalRequest) {
                 LogUtil.log(Config.LogLevel.VERBOSE,
-                    String.format("REACTIVE: re-sending authenticated request to %s", host));
-                api.http().sendRequest(authenticatedRequest);
+                    String.format("%s: re-sending authenticated request to %s", strategy, host));
+
+                HttpRequestResponse retried = api.http().sendRequest(authenticatedRequest);
+                if (retried != null && retried.hasResponse()) {
+                    HttpResponse retriedResponse = retried.response();
+                    LogUtil.log(Config.LogLevel.VERBOSE,
+                        String.format("%s: replacing original response for %s with retried status %d",
+                            strategy, host, retriedResponse.statusCode()));
+                    return ResponseReceivedAction.continueWith(retriedResponse);
+                }
             }
         }
 

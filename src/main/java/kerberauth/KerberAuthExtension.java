@@ -16,7 +16,7 @@ import kerberauth.config.Config;
 public class KerberAuthExtension implements BurpExtension {
 
     public static final String EXTENSION_NAME = "KerberAuth";
-    public static final String EXTENSION_VERSION = "0.1";
+    public static final String EXTENSION_VERSION = "1.0";
     public static MontoyaApi api;
     
     private static String origUseSubjectCredsOnly;

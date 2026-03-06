@@ -272,7 +272,7 @@ public class KerberosManager {
                         if (cb instanceof javax.security.auth.callback.NameCallback nc) {
                             nc.setName(testPrincipal);
                         } else if (cb instanceof javax.security.auth.callback.PasswordCallback pc) {
-                            pc.setPassword("test_password_kerberauthauth".toCharArray());
+                            pc.setPassword("test_password_kerberauth".toCharArray());
                         }
                     }
                 }

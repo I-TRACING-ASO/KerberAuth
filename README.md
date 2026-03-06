@@ -4,6 +4,9 @@ A Burp Suite extension that adds Kerberos (SPNEGO/Negotiate) authentication to H
 
 KerberAuth automatically acquires Kerberos TGTs and service tickets, then injects `Authorization: Negotiate` headers into requests — making it possible to test Kerberos-protected web applications with Burp Suite.
 
+Inspired by [Berserko](https://github.com/nccgroup/berserko), the original Burp extension for Kerberos authentication.
+This extension rebuilds its functionalities with the Montoya API, cleans the code, and adds multi-user support and Custom SPN management within Burp.
+
 ## Features
 
 - **Multiple authentication strategies:**
@@ -60,6 +63,11 @@ Map hostnames to specific SPNs when automatic SPN construction or DNS resolution
 
 Set logging and alert verbosity independently (None / Normal / Verbose). Output goes to the extension's **Output** tab in Burp.
 
+## Architecture
+
+See [Architecture documentation](docs/ARCHITECTURE.md) for diagrams and detailed request/response flow.
+
+
 ## Requirements
 
 - Burp Suite Professional or Community (2025.x+)
@@ -72,27 +80,6 @@ Set logging and alert verbosity independently (None / Normal / Verbose). Output 
 ```
 
 The JAR file is generated at `build/libs/kerberauth.jar`.
-
-## Architecture
-
-```
-kerberauth/
-├── KerberAuthExtension.java        # Entry point (BurpExtension)
-├── config/Config.java              # Thread-safe configuration singleton
-├── http/KerberosHttpHandler.java   # HTTP handler (intercepts traffic)
-├── authenticator/                  # User authentication (JAAS)
-├── kerberos/                       # GSS-API / token generation
-├── cache/                          # Context and token caching
-├── manager/UserManager.java        # User lifecycle management
-├── model/UserEntry.java            # User model
-├── ui/                             # Swing UI panels
-└── util/                           # Domain and logging helpers
-```
-
-## Credits
-
-Inspired by [Berserko](https://github.com/nccgroup/berserko), the original Burp extension for Kerberos authentication.
-This extension rebuilds its functionalities with the Montoya API, cleans the code, and adds multi-user support.
 
 ## License
 

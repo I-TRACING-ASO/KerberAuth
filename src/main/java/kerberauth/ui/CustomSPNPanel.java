@@ -1,6 +1,7 @@
 package kerberauth.ui;
 
 import kerberauth.config.Config;
+import kerberauth.util.UIUtil;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -25,7 +26,8 @@ public class CustomSPNPanel extends JPanel {
     private final JButton removeButton;
 
     public CustomSPNPanel() {
-        super(new BorderLayout(4, 4));
+        super(new BorderLayout(5, 5));
+        setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
 
         tableModel = new SPNTableModel();
         spnTable = new JTable(tableModel);
@@ -37,6 +39,7 @@ public class CustomSPNPanel extends JPanel {
                 spnTable.getRowHeight() * 6));
 
         JScrollPane scrollPane = new JScrollPane(spnTable);
+        UIUtil.installWheelPassthrough(scrollPane);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         addButton = new JButton("Add Override");

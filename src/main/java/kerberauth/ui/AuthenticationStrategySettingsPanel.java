@@ -23,7 +23,7 @@ public class AuthenticationStrategySettingsPanel extends JPanel {
     public AuthenticationStrategySettingsPanel() {
         super(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 4, 4, 4);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 

@@ -7,6 +7,7 @@ import java.awt.Insets;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import kerberauth.config.Config;
@@ -35,7 +36,7 @@ public class MasterSettingsPanel extends JPanel {
     public MasterSettingsPanel() {
         super(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 4, 4, 4);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
 
         // MAIN PANEL LAYOUT
@@ -87,7 +88,17 @@ public class MasterSettingsPanel extends JPanel {
         });
 
         clearStateButton.addActionListener(e -> {
-            Config.getInstance().clearKerberosState();
+            int choice = JOptionPane.showConfirmDialog(
+                this,
+                "This will clear Kerberos tickets/session state for configured users.\n\nContinue?",
+                "Confirm clear Kerberos state",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+            );
+
+            if (choice == JOptionPane.YES_OPTION) {
+                Config.getInstance().clearKerberosState();
+            }
         });
 
         logTicketsButton.addActionListener(e -> {

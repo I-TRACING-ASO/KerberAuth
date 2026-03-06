@@ -21,7 +21,7 @@ public class LoggingSettingsPanel extends JPanel {
     public LoggingSettingsPanel() {
         super(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 4, 4, 4);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;

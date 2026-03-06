@@ -28,6 +28,9 @@ import java.awt.*;
  */
 public class KerberAuthTab extends JPanel {
 
+    private static final int VERTICAL_SCROLL_UNIT_INCREMENT = 24;
+    private static final int VERTICAL_SCROLL_BLOCK_INCREMENT = 120;
+
     private final MasterSettingsPanel masterSettingsPanel;
     private final DomainSettingsPanel domainSettingsPanel;
     private final CredentialsSettingsPanel credentialsSettingsPanel;
@@ -81,44 +84,45 @@ public class KerberAuthTab extends JPanel {
 
         // mainPanel holds the vertically stacked sections
         mainPanel = new JPanel(new GridBagLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(0, 0, 8, 0);
+        gbc.insets = new Insets(0, 0, 12, 0);
 
         // add master settings
-        mainPanel.add(addPadding(masterSettingsPanel), gbc);
+        mainPanel.add(masterSettingsPanel, gbc);
         gbc.gridy++;
 
         // domain settings
-        mainPanel.add(wrapWithTitledBorder(addPadding(domainSettingsPanel), "Domain Settings"), gbc);
+        mainPanel.add(wrapWithTitledBorder(domainSettingsPanel, "Domain Settings"), gbc);
         gbc.gridy++;
 
         // credentials
-        mainPanel.add(wrapWithTitledBorder(addPadding(credentialsSettingsPanel), "Domain Credentials"), gbc);
+        mainPanel.add(wrapWithTitledBorder(credentialsSettingsPanel, "Domain Credentials"), gbc);
         gbc.gridy++;
 
         // delegation / krb5.conf
-        mainPanel.add(wrapWithTitledBorder(addPadding(delegationSettingsPanel), "Delegation (krb5.conf)"), gbc);
+        mainPanel.add(wrapWithTitledBorder(delegationSettingsPanel, "Delegation (krb5.conf)"), gbc);
         gbc.gridy++;
 
         // authentication strategy
-        mainPanel.add(wrapWithTitledBorder(addPadding(authenticationStrategySettingsPanel), "Authentication Strategy"), gbc);
+        mainPanel.add(wrapWithTitledBorder(authenticationStrategySettingsPanel, "Authentication Strategy"), gbc);
         gbc.gridy++;
 
         // scope
-        mainPanel.add(wrapWithTitledBorder(addPadding(scopeSettingsPanel), "Scope"), gbc);
+        mainPanel.add(wrapWithTitledBorder(scopeSettingsPanel, "Scope"), gbc);
         gbc.gridy++;
 
         // custom SPN overrides
-        mainPanel.add(wrapWithTitledBorder(addPadding(customSPNPanel), "Custom SPN Overrides"), gbc);
+        mainPanel.add(wrapWithTitledBorder(customSPNPanel, "Custom SPN Overrides"), gbc);
         gbc.gridy++;
 
         // logging
-        mainPanel.add(wrapWithTitledBorder(addPadding(loggingSettingsPanel), "Logging"), gbc);
+        mainPanel.add(wrapWithTitledBorder(loggingSettingsPanel, "Logging"), gbc);
         gbc.gridy++;
 
         // filler to push content to top and allow vertical expansion
@@ -132,6 +136,10 @@ public class KerberAuthTab extends JPanel {
         scrollPane = new JScrollPane(mainPanel,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        // Increase wheel/page scroll speed for smoother navigation in long forms.
+        scrollPane.getVerticalScrollBar().setUnitIncrement(VERTICAL_SCROLL_UNIT_INCREMENT);
+        scrollPane.getVerticalScrollBar().setBlockIncrement(VERTICAL_SCROLL_BLOCK_INCREMENT);
 
         this.add(scrollPane, BorderLayout.CENTER);
 
@@ -152,14 +160,6 @@ public class KerberAuthTab extends JPanel {
                 BorderFactory.createTitledBorder(title),
                 panel.getBorder()
         ));
-        return panel;
-    }
-
-    /**
-     * Add inner padding (EmptyBorder) to a panel.
-     */
-    private JComponent addPadding(JComponent panel) {
-        panel.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
         return panel;
     }
 

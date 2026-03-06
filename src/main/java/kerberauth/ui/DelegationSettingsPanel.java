@@ -39,7 +39,7 @@ public class DelegationSettingsPanel extends JPanel {
     public DelegationSettingsPanel() {
         super(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 4, 4, 4);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
 
         // Row 0: krb5.conf file label + field + help
@@ -88,7 +88,6 @@ public class DelegationSettingsPanel extends JPanel {
         gbc.gridx = 0;
         gbc.gridwidth = 5;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        this.add(new JLabel("Credential delegation is automatically negotiated with the KDC (OK-AS-DELEGATE flag)."), gbc);
 
         // --- Action listeners ---
         changeKrb5FileButton.addActionListener(e -> browseKrb5File());

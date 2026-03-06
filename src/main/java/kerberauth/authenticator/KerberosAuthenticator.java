@@ -88,7 +88,7 @@ public class KerberosAuthenticator {
             }
             
             List<String> spns = DomainUtil.resolveSpns(hostname);
-            ContextTokenSpnTriple ctst = kerberosManager.getTokenForDefaultUser(spns);
+            ContextTokenSpnTriple ctst = kerberosManager.getTokenForUser(user.getUsername(), spns);
             if (ctst == null || ctst.getToken() == null) {
                 LogUtil.log(Config.LogLevel.VERBOSE, 
                     "Failed to generate token for host: " + hostname);
